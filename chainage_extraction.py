@@ -21,6 +21,7 @@ def find_road_files(root):
             if not (f.endswith('.gpkg') or f.endswith('.shp')):
                 continue
             rel = os.path.join(os.path.relpath(dirpath, root), f)
+            # prefer merged and gpkg
             score = 0
             if 'merged' in f.lower():
                 score += 10
@@ -41,11 +42,12 @@ def peek_fields(gpkg_path):
         if not tables:
             conn.close()
             return []
-        cur = conn.execute('PRAGMA table_info("' + tables[0][0] + '")')
+        table_name = tables[0][0]
+        cur = conn.execute('PRAGMA table_info("' + table_name + '")')
         cols = [row[1] for row in cur.fetchall()]
         conn.close()
         return cols
-    except Exception:
+    except:
         return []
 
 
@@ -66,6 +68,7 @@ def run_chainage(
         print("\n[FATAL] Cannot load road:", road_path)
         return
 
+    # group road by sections
     road_sections = {}
     road_fields = [f.name() for f in road.fields()]
     for feat in road.getFeatures():
@@ -97,6 +100,7 @@ def run_chainage(
             print("  [{}] SKIP (invalid)".format(section))
             continue
 
+        # match to road section
         road_geom = None
         for sname, geom in road_sections.items():
             if sname.lower() in section.lower() or section.lower() in sname.lower():
@@ -135,17 +139,19 @@ def run_chainage(
     print("\n[DONE] Results in", output_dir)
 
 
+# interactive setup for new projects
 def setup(project_dir):
     print()
     print('=' * 60)
     print('  Project:', project_dir)
     print('=' * 60)
-    print('  No config found, need to set it up.')
+    print('  No config found, need to set it up.\n')
 
+    # --- survey gpkg folder ---
     gpkg_folders = find_gpkg_folders(project_dir)
     if gpkg_folders:
         items = sorted(gpkg_folders.items())
-        print('\n  Folders with GPKG files:')
+        print('  Folders with GPKG files:')
         for i, (folder, count) in enumerate(items, 1):
             print('    [{}] {} ({} files)'.format(i, folder, count))
         print('    [{}] Enter a different path'.format(len(items) + 1))
@@ -168,6 +174,7 @@ def setup(project_dir):
     gpkg_files = sorted(f for f in os.listdir(full_input) if f.endswith('.gpkg'))
     print('\n  Using:', input_dir, '(' + str(len(gpkg_files)) + ' files)')
 
+    # --- road file ---
     road_files = find_road_files(project_dir)
     if road_files:
         print('\n  Road files found:')
@@ -189,8 +196,10 @@ def setup(project_dir):
         print('  No road files found.')
         road_path = input('  Enter road centerline path: ').strip()
 
-    print('\n  Road:', road_path)
+    print('  Road:', road_path)
 
+    # --- field names ---
+    # try to autodetect from first gpkg
     print('\n  Checking field names from first GPKG...')
     first_gpkg = os.path.join(full_input, gpkg_files[0]) if gpkg_files else None
     detected = peek_fields(first_gpkg) if first_gpkg else []
@@ -207,6 +216,7 @@ def setup(project_dir):
     sf = input('  Road section field [layer]: ').strip() or 'layer'
     crs = input('  CRS [EPSG:32645]: ').strip() or 'EPSG:32645'
 
+    # --- base chainages ---
     print('')
     base_chainage = {}
     for f in gpkg_files:

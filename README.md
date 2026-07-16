@@ -1,23 +1,28 @@
-# Chainage Extraction Tool
+# chainage extraction
 
-Takes survey point GPKG files and projects them onto a road centerline to compute chainage values. Outputs CSV files with chainage, easting, northing and elevation.
+takes survey points from gpkg files and projects them onto a road centerline to get chainage values. outputs csv.
 
-## Requirements
+## setup
 
-- QGIS LTR 3.44+ installed at C:\OSGeo4W
-- Windows (uses .bat launcher)
+- qgis ltr 3.44+ installed at C:\OSGeo4W
+- windows only (uses .bat)
 
-## How to use
+## usage
 
-1. Drag your project folder onto run.bat
-2. First time setup will ask for:
-   - Which folder has the GPKG survey files
-   - Which file is the road centerline
-   - Base chainage for each section
-3. Output goes to output_chainage\[project name]\
+drag your project folder onto run.bat
 
-## Project folder structure
+first time it will ask for:
+- which folder has the gpkg files
+- which file is the road centerline
+- what field names to use (easting, northing, elevation)
+- base chainage for each section
 
-Any structure works. On first run the tool scans everything and shows you what it found — just pick the right folders.
+after that it saves a config file in your project folder so you can just drag and run again.
 
-Config gets saved in your project folder as chainage_config.json. Future runs skip setup.
+output goes to output_chainage\projectname\
+
+## notes
+
+- tested with nh01 and nh02 projects
+- expects utm 45n coordinates by default (epsg:32645)
+- road layer needs to have sections split by a field (default "layer")
