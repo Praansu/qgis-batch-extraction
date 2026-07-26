@@ -1,28 +1,66 @@
-# chainage extraction
+# 📐 QGIS Batch Chainage Extraction
 
-takes survey points from gpkg files and projects them onto a road centerline to get chainage values. outputs csv.
+Automated pipeline for projecting survey points onto road centerlines and extracting chainage values in bulk using QGIS.
 
-## setup
+## 📋 Overview
 
-- qgis ltr 3.44+ installed at C:\OSGeo4W
-- windows only (uses .bat)
+This tool processes survey point data from GeoPackage (`.gpkg`) files, projects them onto a road centerline, and outputs chainage (station) values as CSV. Built for civil engineering and surveying workflows.
 
-## usage
+## ⚙️ How It Works
 
-drag your project folder onto run.bat
+1. Loads survey points from multiple GPKG files in a project folder
+2. Projects each point onto the nearest road centerline segment
+3. Calculates chainage (distance along the centerline)
+4. Outputs structured CSV with easting, northing, elevation, and chainage
 
-first time it will ask for:
-- which folder has the gpkg files
-- which file is the road centerline
-- what field names to use (easting, northing, elevation)
-- base chainage for each section
+## 🚀 Quick Start
 
-after that it saves a config file in your project folder so you can just drag and run again.
+### Prerequisites
+- **QGIS LTR 3.44+** installed at `C:\OSGeo4W` (Windows only)
+- Survey data in GPKG format
+- Road centerline layer with sectioned segments
 
-output goes to output_chainage\projectname\
+### Usage
 
-## notes
+1. **Drag your project folder** onto `run.bat`
+2. **First-time setup:** You'll be prompted for:
+   - GPKG data folder location
+   - Road centerline file
+   - Field names (easting, northing, elevation)
+   - Base chainage for each section
+3. **Subsequent runs:** Config is saved — just drag & run
 
-- tested with nh01 and nh02 projects
-- expects utm 45n coordinates by default (epsg:32645)
-- road layer needs to have sections split by a field (default "layer")
+### Output
+
+```
+output_chainage/
+└── {project_name}/
+    └── chainage_results.csv
+```
+
+## 🛠️ Tech Stack
+
+![Python](https://img.shields.io/badge/Python-3776AB?style=flat-square&logo=python&logoColor=white)
+![QGIS](https://img.shields.io/badge/QGIS-589632?style=flat-square&logo=qgis&logoColor=white)
+![Batch](https://img.shields.io/badge/Windows_Batch-4D4D4D?style=flat-square&logo=windows&logoColor=white)
+
+## 📁 Project Structure
+
+```
+qgis-batch-extraction/
+├── run.bat              # One-click launcher
+├── chainage.py          # Core chainage computation
+├── config_manager.py    # Configuration persistence
+├── requirements.txt     # Python dependencies
+└── README.md
+```
+
+## 📝 Notes
+
+- Tested with **NH01** and **NH02** highway projects
+- Default CRS: **UTM 45N (EPSG:32645)**
+- Road layer requires segments split by a field (default: `"layer"`)
+
+## 📄 License
+
+MIT © 2026 Praansu Karmacharya
